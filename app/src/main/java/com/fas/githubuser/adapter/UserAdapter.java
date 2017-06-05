@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.fas.githubuser.R;
 import com.fas.githubuser.model.UserModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,6 +36,7 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public UserAdapter(Activity activity, RecyclerView recyclerView) {
         this.activity = activity;
+        userModels = new ArrayList<>();
         if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
 
             final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
@@ -46,8 +48,6 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     totalItemCount = linearLayoutManager.getItemCount();
                     lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
                     if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-                        // End has been reached
-                        // Do something
                         if (onLoadMoreListener != null) {
                             onLoadMoreListener.onLoadMore(userModels.get(userModels.size()-1).getId(),
                                                             (totalItemCount/10) + 1);
@@ -65,6 +65,13 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void addUserModels(List<UserModel> userModels) {
         this.userModels.addAll(userModels);
+    }
+
+    public void removeUserModel(int position) {
+        if (userModels != null && userModels.size() > 0) {
+            userModels.remove(position);
+            notifyItemRemoved(userModels.size());
+        }
     }
 
     public void addUserModel(UserModel userModel) {

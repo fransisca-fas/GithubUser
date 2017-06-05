@@ -1,18 +1,16 @@
 package com.fas.githubuser;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.fas.githubuser.adapter.UserAdapter;
-import com.fas.githubuser.listener.EndlessScrollListener;
 import com.fas.githubuser.model.UserModel;
 import com.fas.githubuser.presenter.MainActivityPresenter;
 import com.fas.githubuser.view.MainActivityView;
@@ -53,16 +51,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
     public void initView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         userList.setLayoutManager(layoutManager);
-        /*userList.addOnScrollListener(new EndlessScrollListener(layoutManager) {
-            @Override
-            public void onLoadMore(long lastuserId, int current_page) {
-                if (presenter.isSearching()) {
-                    presenter.searchUsers(userSearch.getQuery().toString(), current_page);
-                } else {
-                    presenter.getUsers(lastuserId);
-                }
-            }
-        });*/
 
         handler = new Handler();
         adapter = new UserAdapter(this, userList);
@@ -70,8 +58,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
         adapter.setOnLoadMoreListener(new UserAdapter.OnLoadMoreListener() {
             @Override
             public void onLoadMore(long lastuserId, int current_page) {
-//                adapter.addUserModel(null);
-//                adapter.notifyItemInserted(adapter.getItemCount() - 1);
+                adapter.addUserModel(null);
+                adapter.notifyItemInserted(adapter.getItemCount() - 1);
 
                 if (presenter.isSearching()) {
                     presenter.searchUsers(userSearch.getQuery().toString(), current_page);
@@ -119,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
 
     @Override
     public void onFetched(List<UserModel> userModels) {
+        adapter.removeUserModel(adapter.getItemCount() - 1);
         showLoading(false);
         if (userModels.size() == 0)
             showWarning(emptyUser);
@@ -131,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
 
     @Override
     public void onUserAdded(List<UserModel> userModels) {
+        adapter.removeUserModel(adapter.getItemCount() - 1);
         showLoading(false);
         adapter.addUserModels(userModels);
         adapter.notifyDataSetChanged();
