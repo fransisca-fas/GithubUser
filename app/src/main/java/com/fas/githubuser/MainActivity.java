@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
     public void initView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         userList.setLayoutManager(layoutManager);
-        userList.addOnScrollListener(new EndlessScrollListener(layoutManager) {
+        /*userList.addOnScrollListener(new EndlessScrollListener(layoutManager) {
             @Override
             public void onLoadMore(long lastuserId, int current_page) {
                 if (presenter.isSearching()) {
@@ -62,11 +62,24 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
                     presenter.getUsers(lastuserId);
                 }
             }
-        });
+        });*/
 
         handler = new Handler();
-        adapter = new UserAdapter(this);
+        adapter = new UserAdapter(this, userList);
         userList.setAdapter(adapter);
+        adapter.setOnLoadMoreListener(new UserAdapter.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore(long lastuserId, int current_page) {
+//                adapter.addUserModel(null);
+//                adapter.notifyItemInserted(adapter.getItemCount() - 1);
+
+                if (presenter.isSearching()) {
+                    presenter.searchUsers(userSearch.getQuery().toString(), current_page);
+                } else {
+                    presenter.getUsers(lastuserId);
+                }
+            }
+        });
 
         userSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -113,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
             showWarning("");
         adapter.setUserModels(userModels);
         adapter.notifyDataSetChanged();
+        adapter.setLoading(false);
     }
 
     @Override
@@ -120,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView{
         showLoading(false);
         adapter.addUserModels(userModels);
         adapter.notifyDataSetChanged();
+        adapter.setLoading(false);
     }
 
     @Override
